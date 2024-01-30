@@ -1,0 +1,8 @@
+# .gitignore 
+
+.ipynb_checkpoints
+*.ipynb
+__pycache__
+*.pyc
+.cache/
+testing/
