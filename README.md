@@ -10,4 +10,6 @@ Copy of the Aneurisk dataset repository, cloned from  [http://ecm2.mathcs.emory.
   * /dicom: DICOM image series
   * /volumes: Image volumes, from DICOM
   * /models: Surfaces and centerlines
+  * /data: Data files about the cohort
+  * /aneurisk: Code files to manipulate the dataset.
   
