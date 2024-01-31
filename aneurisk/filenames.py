@@ -13,7 +13,7 @@ dataDirName = "data"
 refPointsFileName = "referencepoints.csv"
 casesFileName = "cases.csv"
 
-def _gen_case_label(case_id: int):
+def gen_case_label(case_id: int):
 
     return "C" + str(case_id).rjust(4, "0")
 
@@ -32,8 +32,8 @@ def _get_multiple_ia_cases() -> dict:
     # I should write a list of the cases only, after wall the Aneurisk
     # repository won't change
     return {
-               cid: [_gen_case_label(cid) + "a",
-                     _gen_case_label(cid) + "b"]
+               cid: [gen_case_label(cid) + "a",
+                     gen_case_label(cid) + "b"]
                for cid in [28, 57, 74, 88]
            }
 
@@ -51,7 +51,7 @@ def _validate_case_label(case_label: Union[str,int]) -> str:
                   )
 
         else:
-            return _gen_case_label(case_label)
+            return gen_case_label(case_label)
 
     elif type(case_label) is str:
 
@@ -116,18 +116,6 @@ def path_to_model_centerline_file(
                "centerlines.vtp"
            )
 
-def path_to_clipped_model_file(
-        case_id: Union[str, int]
-    ) -> str:
-
-    return os.path.join(
-               _get_aneurisk_database_path(),
-               "models",
-               _validate_case_label(case_id),
-               "surface",
-               "model_clipped.vtp"
-           )
-
 def path_to_cfd_model_file(
         case_id: Union[str, int]
     ) -> str:
@@ -137,7 +125,7 @@ def path_to_cfd_model_file(
                "models",
                _validate_case_label(case_id),
                "surface",
-               "model_cfd.vtp"
+               "model_cfd.stl"
            )
 
 def path_to_healthy_model_file(
@@ -241,3 +229,33 @@ def load_cases_data(
     casesIds = cases.index.str.strip("Cab").astype(int)
 
     return cases.loc[(casesIds >= minCase) & (casesIds <= maxCase)]
+
+def get_ref_bif_point(
+        case_id: Union[str, int]
+    ) -> tuple:
+
+    casesData = load_cases_data()
+
+    return tuple(
+                casesData.loc[
+                    _validate_case_label(case_id),
+                    ["ICABifPoint0",
+                     "ICABifPoint1",
+                     "ICABifPoint2"]
+                ]
+            )
+
+def get_dome_point(
+        case_id: Union[str, int]
+    ) -> tuple:
+
+    casesData = load_cases_data()
+
+    return tuple(
+                casesData.loc[
+                    _validate_case_label(case_id),
+                    ["DomePoint0",
+                     "DomePoint1",
+                     "DomePoint2"]
+                ]
+            )
