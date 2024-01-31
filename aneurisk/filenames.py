@@ -9,6 +9,10 @@ import os
 import pandas as pd
 from typing import Union
 
+dataDirName = "data"
+refPointsFileName = "referencepoints.csv"
+casesFileName = "cases.csv"
+
 def _gen_case_label(case_id: int):
 
     return "C" + str(case_id).rjust(4, "0")
@@ -187,7 +191,7 @@ def path_to_ostium_file(
                "ostium_" + mode + ".vtp"
            )
 
-def load_cases(
+def load_cases_data(
         between: tuple=(1, 99)
     ):
 
@@ -199,10 +203,12 @@ def load_cases(
                   "Range between 1 and 99."
               )
 
-    casesFilePath = os.path.join(_get_aneurisk_database_path(), "data/cases.csv")
-
     cases = pd.read_csv(
-                casesFilePath,
+                os.path.join(
+                    _get_aneurisk_database_path(),
+                    dataDirName,
+                    casesFileName
+                ),
                 index_col="id"
             )
 
@@ -215,18 +221,23 @@ def load_cases(
         cases.loc[:, "aneurysmType"] == "TER"
     ] = "bifurcation"
 
+    # Load reference points coordinates
+    points = pd.read_csv(
+                 os.path.join(
+                     _get_aneurisk_database_path(),
+                     dataDirName,
+                     refPointsFileName
+                 ),
+                 index_col="id"
+             )
+
+    cases = pd.concat(
+                [cases, points],
+                axis=1
+            )
+
     # Get series to identify case by integer (cases with 2 aneurysms get the
     # same index so they be included in the indexing)
     casesIds = cases.index.str.strip("Cab").astype(int)
 
     return cases.loc[(casesIds >= minCase) & (casesIds <= maxCase)]
-
-def load_dome_points():
-
-    filePath = os.path.join(
-                   os.getcwd(),
-                   "data",
-                   "domePoints.csv"
-               )
-
-    return pd.read_csv(filePath, index_col="id")
