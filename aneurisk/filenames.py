@@ -12,6 +12,7 @@ from typing import Union
 dataDirName = "data"
 refPointsFileName = "referencepoints.csv"
 casesFileName = "cases.csv"
+patientsFileName = "patients.csv"
 
 def gen_case_label(case_id: int):
 
@@ -200,6 +201,16 @@ def load_cases_data(
                 index_col="id"
             )
 
+    # Load patients data too
+    patients = pd.read_csv(
+                   os.path.join(
+                       _get_aneurisk_database_path(),
+                       dataDirName,
+                       patientsFileName
+                   ),
+                   index_col="id"
+               )
+
     # Update code of lateral and terminal aneurysms
     cases["aneurysmType"].loc[
         cases.loc[:, "aneurysmType"] == "LAT"
@@ -208,6 +219,13 @@ def load_cases_data(
     cases["aneurysmType"].loc[
         cases.loc[:, "aneurysmType"] == "TER"
     ] = "bifurcation"
+
+    # Add sex and age of patient
+    cases["sex"] = [patients.loc[pid, "sex"]
+                    for pid in cases["patient_id"]]
+
+    cases["age"] = [patients.loc[pid, "age"]
+                    for pid in cases["patient_id"]]
 
     # Load reference points coordinates
     points = pd.read_csv(
@@ -227,6 +245,9 @@ def load_cases_data(
     # Get series to identify case by integer (cases with 2 aneurysms get the
     # same index so they be included in the indexing)
     casesIds = cases.index.str.strip("Cab").astype(int)
+
+    # Add numerical ID
+    cases["numericalId"] = casesIds
 
     return cases.loc[(casesIds >= minCase) & (casesIds <= maxCase)]
 
