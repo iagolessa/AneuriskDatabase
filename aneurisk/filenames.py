@@ -181,16 +181,14 @@ def path_to_ostium_file(
            )
 
 def load_cases_data(
-        between: tuple=(1, 99)
+        cases_ids: list=None,
+        between_ids: tuple=None
     ):
+    """Pass range or list of cases to load data.
 
-    minCase = min(between)
-    maxCase = max(between)
-
-    if minCase < 1 or maxCase > 99:
-        raise ValueError(
-                  "Range between 1 and 99."
-              )
+    If both cases and range are passed, the range will be ignored. If no cases
+    are passed, return all cases.
+    """
 
     cases = pd.read_csv(
                 os.path.join(
@@ -249,7 +247,29 @@ def load_cases_data(
     # Add numerical ID
     cases["numericalId"] = casesIds
 
-    return cases.loc[(casesIds >= minCase) & (casesIds <= maxCase)]
+    if cases_ids:
+        # cases_ids = sorted(cases_ids)
+
+        if min(cases_ids) < 1 or max(cases_ids) > 99:
+            raise ValueError(
+                  "Cases IDs should be between 1 and 99."
+              )
+
+        return cases.loc[casesIds.isin(cases_ids)]
+
+    elif between_ids:
+        minCase = min(between_ids)
+        maxCase = max(between_ids)
+
+        if minCase < 1 or maxCase > 99:
+            raise ValueError(
+                  "Range between 1 and 99."
+              )
+
+        return cases.loc[(casesIds >= minCase) & (casesIds <= maxCase)]
+
+    else:
+        return cases
 
 def get_ref_bif_point(
         case_id: Union[str, int]
