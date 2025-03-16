@@ -14,6 +14,19 @@ refPointsFileName = "referencepoints.csv"
 casesFileName = "cases.csv"
 patientsFileName = "patients.csv"
 
+def excluded_cases() -> list:
+
+    return  [
+        # ICA too short than the fourth bend
+        15, 18, 22, 24, 25, 26, 40, 61, 87, 93,
+        # Case with outlet too close to the IA
+        58, 47,
+        # Multiple cases
+        28, 57, 74, 88,
+        # Basilar cases
+        32, 43, 54, 68, 91, 95, 96
+    ]
+
 def gen_case_label(case_id: int):
 
     return "C" + str(case_id).rjust(4, "0")
@@ -210,12 +223,12 @@ def load_cases_data(
                )
 
     # Update code of lateral and terminal aneurysms
-    cases["aneurysmType"].loc[
-        cases.loc[:, "aneurysmType"] == "LAT"
+    cases.loc[
+        cases.loc[:, "aneurysmType"] == "LAT", "aneurysmType"
     ] = "lateral"
 
-    cases["aneurysmType"].loc[
-        cases.loc[:, "aneurysmType"] == "TER"
+    cases.loc[
+        cases.loc[:, "aneurysmType"] == "TER", "aneurysmType"
     ] = "bifurcation"
 
     # Add sex and age of patient
